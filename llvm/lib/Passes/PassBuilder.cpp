@@ -121,6 +121,7 @@
 #include "llvm/CodeGen/MachinePostDominators.h"
 #include "llvm/CodeGen/MachineRegisterInfo.h"
 #include "llvm/CodeGen/MachineScheduler.h"
+#include "llvm/CodeGen/MachineSink.h"
 #include "llvm/CodeGen/MachineTraceMetrics.h"
 #include "llvm/CodeGen/MachineVerifier.h"
 #include "llvm/CodeGen/OptimizePHIs.h"
@@ -1412,6 +1413,11 @@ parseBoundsCheckingOptions(StringRef Params) {
     }
   }
   return Options;
+}
+
+Expected<bool> parseMachineSinkingPassOptions(StringRef Params) {
+  return PassBuilder::parseSinglePassOption(Params, "enable-sink-fold",
+                                            "MachineSinkingPass");
 }
 
 } // namespace
