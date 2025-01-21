@@ -1400,6 +1400,9 @@ unsigned RelocationScanner::handleTlsRelocation(RelExpr expr, RelType type,
   // LoongArch does not support transition from TLSDESC to LE/IE in the extreme
   // code model, in which NEEDS_TLSDESC should set, rather than NEEDS_TLSGD. So
   // we check independently.
+  // FIXME: The use of NEEDS_TLSDESC originates from previous implementation.
+  // Using NEEDS_TLSGD may improve the dynamic linker's loading speed, which
+  // will be optimized in the future.
   if (ctx.arg.emachine == EM_LOONGARCH &&
       oneof<RE_LOONGARCH_TLSDESC_PAGE_PC, R_TLSDESC, R_TLSDESC_PC,
             R_TLSDESC_CALL>(expr) &&
