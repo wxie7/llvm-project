@@ -332,8 +332,6 @@ public:
   bool shouldEmitStaticExternCAliases() const override;
   bool shouldEmitDWARFBitFieldSeparators() const override;
   void setCUDAKernelCallingConvention(const FunctionType *&FT) const override;
-  void
-  setOCLKernelStubCallingConvention(const FunctionType *&FT) const override;
 };
 }
 
@@ -613,12 +611,6 @@ void AMDGPUTargetCodeGenInfo::setCUDAKernelCallingConvention(
     const FunctionType *&FT) const {
   FT = getABIInfo().getContext().adjustFunctionType(
       FT, FT->getExtInfo().withCallingConv(CC_OpenCLKernel));
-}
-
-void AMDGPUTargetCodeGenInfo::setOCLKernelStubCallingConvention(
-    const FunctionType *&FT) const {
-  FT = getABIInfo().getContext().adjustFunctionType(
-      FT, FT->getExtInfo().withCallingConv(CC_C));
 }
 
 /// Create an OpenCL kernel for an enqueued block.

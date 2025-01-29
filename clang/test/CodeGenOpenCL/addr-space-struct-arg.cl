@@ -46,7 +46,6 @@ struct LargeStructTwoMember {
 struct LargeStructOneMember g_s;
 #endif
 
-//
 // X86-LABEL: define void @foo(
 // X86-SAME: ptr dead_on_unwind noalias writable sret([[STRUCT_MAT4X4:%.*]]) align 4 [[AGG_RESULT:%.*]], ptr noundef byval([[STRUCT_MAT3X3:%.*]]) align 4 [[IN:%.*]]) #[[ATTR0:[0-9]+]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -106,7 +105,6 @@ Mat4X4 __attribute__((noinline)) foo(Mat3X3 in) {
   return out;
 }
 
-//
 // X86-LABEL: define spir_kernel void @ker(
 // X86-SAME: ptr addrspace(1) noundef align 4 [[IN:%.*]], ptr addrspace(1) noundef align 4 [[OUT:%.*]]) #[[ATTR1:[0-9]+]] !kernel_arg_addr_space [[META4:![0-9]+]] !kernel_arg_access_qual [[META5:![0-9]+]] !kernel_arg_type [[META6:![0-9]+]] !kernel_arg_base_type [[META6]] !kernel_arg_type_qual [[META7:![0-9]+]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -258,7 +256,6 @@ kernel void ker(global Mat3X3 *in, global Mat4X4 *out) {
   out[0] = foo(in[1]);
 }
 
-//
 // X86-LABEL: define void @foo_large(
 // X86-SAME: ptr dead_on_unwind noalias writable sret([[STRUCT_MAT64X64:%.*]]) align 4 [[AGG_RESULT:%.*]], ptr noundef byval([[STRUCT_MAT32X32:%.*]]) align 4 [[IN:%.*]]) #[[ATTR0]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -305,7 +302,6 @@ Mat64X64 __attribute__((noinline)) foo_large(Mat32X32 in) {
   return out;
 }
 
-//
 // X86-LABEL: define spir_kernel void @ker_large(
 // X86-SAME: ptr addrspace(1) noundef align 4 [[IN:%.*]], ptr addrspace(1) noundef align 4 [[OUT:%.*]]) #[[ATTR1]] !kernel_arg_addr_space [[META4]] !kernel_arg_access_qual [[META5]] !kernel_arg_type [[META8:![0-9]+]] !kernel_arg_base_type [[META8]] !kernel_arg_type_qual [[META7]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -453,7 +449,6 @@ kernel void ker_large(global Mat32X32 *in, global Mat64X64 *out) {
   out[0] = foo_large(in[1]);
 }
 
-//
 // X86-LABEL: define void @FuncOneMember(
 // X86-SAME: ptr noundef byval([[STRUCT_STRUCTONEMEMBER:%.*]]) align 4 [[TMP0:%.*]]) #[[ATTR0]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -534,7 +529,6 @@ void FuncOneMember(struct StructOneMember u) {
   u.x = (int2)(0, 0);
 }
 
-//
 // X86-LABEL: define void @FuncOneLargeMember(
 // X86-SAME: ptr noundef byval([[STRUCT_LARGESTRUCTONEMEMBER:%.*]]) align 4 [[TMP0:%.*]]) #[[ATTR0]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -639,7 +633,6 @@ void test_indirect_arg_globl(void) {
 }
 #endif
 
-//
 // X86-LABEL: define spir_kernel void @test_indirect_arg_local(
 // X86-SAME: ) #[[ATTR1]] !kernel_arg_addr_space [[META9:![0-9]+]] !kernel_arg_access_qual [[META9]] !kernel_arg_type [[META9]] !kernel_arg_base_type [[META9]] !kernel_arg_type_qual [[META9]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -693,7 +686,6 @@ kernel void test_indirect_arg_local(void) {
   FuncOneLargeMember(l_s);
 }
 
-//
 // X86-LABEL: define void @test_indirect_arg_private(
 // X86-SAME: ) #[[ATTR0]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -744,13 +736,14 @@ void test_indirect_arg_private(void) {
   FuncOneLargeMember(p_s);
 }
 
-//
 // X86-LABEL: define spir_kernel void @KernelOneMember(
 // X86-SAME: ptr noundef byval([[STRUCT_STRUCTONEMEMBER:%.*]]) align 8 [[U:%.*]]) #[[ATTR1]] !kernel_arg_addr_space [[META10:![0-9]+]] !kernel_arg_access_qual [[META11:![0-9]+]] !kernel_arg_type [[META12:![0-9]+]] !kernel_arg_base_type [[META12]] !kernel_arg_type_qual [[META13:![0-9]+]] {
 // X86-NEXT:  [[ENTRY:.*:]]
+// X86-NEXT:    [[U_I:%.*]] = alloca [[STRUCT_STRUCTONEMEMBER]], align 8
 // X86-NEXT:    [[U1:%.*]] = alloca [[STRUCT_STRUCTONEMEMBER]], align 8
 // X86-NEXT:    call void @llvm.memcpy.p0.p0.i64(ptr align 1 [[U1]], ptr align 1 [[U]], i64 8, i1 false)
-// X86-NEXT:    call void @FuncOneMember(ptr noundef byval([[STRUCT_STRUCTONEMEMBER]]) align 4 [[U1]]) #[[ATTR4]]
+// X86-NEXT:    call void @llvm.memcpy.p0.p0.i32(ptr align 8 [[U_I]], ptr align 4 [[U1]], i32 8, i1 false)
+// X86-NEXT:    call void @FuncOneMember(ptr noundef byval([[STRUCT_STRUCTONEMEMBER]]) align 4 [[U_I]]) #[[ATTR4]]
 // X86-NEXT:    ret void
 //
 // AMDGCN-LABEL: define dso_local amdgpu_kernel void @KernelOneMember(
@@ -823,7 +816,6 @@ kernel void KernelOneMember(struct StructOneMember u) {
   FuncOneMember(u);
 }
 
-//
 // X86-LABEL: define spir_kernel void @KernelOneMemberSpir(
 // X86-SAME: ptr addrspace(1) noundef align 8 [[U:%.*]]) #[[ATTR1]] !kernel_arg_addr_space [[META14:![0-9]+]] !kernel_arg_access_qual [[META11]] !kernel_arg_type [[META15:![0-9]+]] !kernel_arg_base_type [[META15]] !kernel_arg_type_qual [[META13]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -910,13 +902,14 @@ kernel void KernelOneMemberSpir(global struct StructOneMember* u) {
   FuncOneMember(*u);
 }
 
-//
 // X86-LABEL: define spir_kernel void @KernelLargeOneMember(
 // X86-SAME: ptr noundef byval([[STRUCT_LARGESTRUCTONEMEMBER:%.*]]) align 8 [[U:%.*]]) #[[ATTR1]] !kernel_arg_addr_space [[META10]] !kernel_arg_access_qual [[META11]] !kernel_arg_type [[META16:![0-9]+]] !kernel_arg_base_type [[META16]] !kernel_arg_type_qual [[META13]] {
 // X86-NEXT:  [[ENTRY:.*:]]
+// X86-NEXT:    [[U_I:%.*]] = alloca [[STRUCT_LARGESTRUCTONEMEMBER]], align 8
 // X86-NEXT:    [[U1:%.*]] = alloca [[STRUCT_LARGESTRUCTONEMEMBER]], align 8
 // X86-NEXT:    call void @llvm.memcpy.p0.p0.i64(ptr align 1 [[U1]], ptr align 1 [[U]], i64 800, i1 false)
-// X86-NEXT:    call void @FuncOneLargeMember(ptr noundef byval([[STRUCT_LARGESTRUCTONEMEMBER]]) align 4 [[U1]]) #[[ATTR4]]
+// X86-NEXT:    call void @llvm.memcpy.p0.p0.i32(ptr align 8 [[U_I]], ptr align 4 [[U1]], i32 800, i1 false)
+// X86-NEXT:    call void @FuncOneLargeMember(ptr noundef byval([[STRUCT_LARGESTRUCTONEMEMBER]]) align 4 [[U_I]]) #[[ATTR4]]
 // X86-NEXT:    ret void
 //
 // AMDGCN-LABEL: define dso_local amdgpu_kernel void @KernelLargeOneMember(
@@ -984,7 +977,6 @@ kernel void KernelLargeOneMember(struct LargeStructOneMember u) {
   FuncOneLargeMember(u);
 }
 
-//
 // X86-LABEL: define void @FuncTwoMember(
 // X86-SAME: ptr noundef byval([[STRUCT_STRUCTTWOMEMBER:%.*]]) align 4 [[TMP0:%.*]]) #[[ATTR0]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -1073,7 +1065,6 @@ void FuncTwoMember(struct StructTwoMember u) {
   u.y = (int2)(0, 0);
 }
 
-//
 // X86-LABEL: define void @FuncLargeTwoMember(
 // X86-SAME: ptr noundef byval([[STRUCT_LARGESTRUCTTWOMEMBER:%.*]]) align 4 [[TMP0:%.*]]) #[[ATTR0]] {
 // X86-NEXT:  [[ENTRY:.*:]]
@@ -1156,13 +1147,14 @@ void FuncLargeTwoMember(struct LargeStructTwoMember u) {
   u.y[0] = (int2)(0, 0);
 }
 
-//
 // X86-LABEL: define spir_kernel void @KernelTwoMember(
 // X86-SAME: ptr noundef byval([[STRUCT_STRUCTTWOMEMBER:%.*]]) align 8 [[U:%.*]]) #[[ATTR1]] !kernel_arg_addr_space [[META10]] !kernel_arg_access_qual [[META11]] !kernel_arg_type [[META17:![0-9]+]] !kernel_arg_base_type [[META17]] !kernel_arg_type_qual [[META13]] {
 // X86-NEXT:  [[ENTRY:.*:]]
+// X86-NEXT:    [[U_I:%.*]] = alloca [[STRUCT_STRUCTTWOMEMBER]], align 8
 // X86-NEXT:    [[U1:%.*]] = alloca [[STRUCT_STRUCTTWOMEMBER]], align 8
 // X86-NEXT:    call void @llvm.memcpy.p0.p0.i64(ptr align 1 [[U1]], ptr align 1 [[U]], i64 16, i1 false)
-// X86-NEXT:    call void @FuncTwoMember(ptr noundef byval([[STRUCT_STRUCTTWOMEMBER]]) align 4 [[U1]]) #[[ATTR4]]
+// X86-NEXT:    call void @llvm.memcpy.p0.p0.i32(ptr align 8 [[U_I]], ptr align 4 [[U1]], i32 16, i1 false)
+// X86-NEXT:    call void @FuncTwoMember(ptr noundef byval([[STRUCT_STRUCTTWOMEMBER]]) align 4 [[U_I]]) #[[ATTR4]]
 // X86-NEXT:    ret void
 //
 // AMDGCN-LABEL: define dso_local amdgpu_kernel void @KernelTwoMember(
@@ -1275,13 +1267,14 @@ kernel void KernelTwoMember(struct StructTwoMember u) {
   FuncTwoMember(u);
 }
 
-//
 // X86-LABEL: define spir_kernel void @KernelLargeTwoMember(
 // X86-SAME: ptr noundef byval([[STRUCT_LARGESTRUCTTWOMEMBER:%.*]]) align 8 [[U:%.*]]) #[[ATTR1]] !kernel_arg_addr_space [[META10]] !kernel_arg_access_qual [[META11]] !kernel_arg_type [[META18:![0-9]+]] !kernel_arg_base_type [[META18]] !kernel_arg_type_qual [[META13]] {
 // X86-NEXT:  [[ENTRY:.*:]]
+// X86-NEXT:    [[U_I:%.*]] = alloca [[STRUCT_LARGESTRUCTTWOMEMBER]], align 8
 // X86-NEXT:    [[U1:%.*]] = alloca [[STRUCT_LARGESTRUCTTWOMEMBER]], align 8
 // X86-NEXT:    call void @llvm.memcpy.p0.p0.i64(ptr align 1 [[U1]], ptr align 1 [[U]], i64 480, i1 false)
-// X86-NEXT:    call void @FuncLargeTwoMember(ptr noundef byval([[STRUCT_LARGESTRUCTTWOMEMBER]]) align 4 [[U1]]) #[[ATTR4]]
+// X86-NEXT:    call void @llvm.memcpy.p0.p0.i32(ptr align 8 [[U_I]], ptr align 4 [[U1]], i32 480, i1 false)
+// X86-NEXT:    call void @FuncLargeTwoMember(ptr noundef byval([[STRUCT_LARGESTRUCTTWOMEMBER]]) align 4 [[U_I]]) #[[ATTR4]]
 // X86-NEXT:    ret void
 //
 // AMDGCN-LABEL: define dso_local amdgpu_kernel void @KernelLargeTwoMember(
