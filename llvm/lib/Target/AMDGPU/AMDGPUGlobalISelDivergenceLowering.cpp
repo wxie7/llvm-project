@@ -18,10 +18,16 @@
 #include "AMDGPU.h"
 #include "AMDGPUGlobalISelUtils.h"
 #include "SILowerI1Copies.h"
+#include "llvm/ADT/DenseMap.h"
 #include "llvm/CodeGen/GlobalISel/MachineIRBuilder.h"
+#include "llvm/CodeGen/MachineBasicBlock.h"
+#include "llvm/CodeGen/MachineCycleAnalysis.h"
 #include "llvm/CodeGen/MachineFunctionPass.h"
+#include "llvm/CodeGen/MachineInstr.h"
 #include "llvm/CodeGen/MachineUniformityAnalysis.h"
+#include "llvm/IR/CycleInfo.h"
 #include "llvm/InitializePasses.h"
+#include <utility>
 
 #define DEBUG_TYPE "amdgpu-global-isel-divergence-lowering"
 
@@ -81,6 +87,7 @@ public:
   void constrainAsLaneMask(Incoming &In) override;
 
   bool lowerTemporalDivergence();
+  bool lowerTemporalDivergenceI1();
 };
 
 DivergenceLoweringHelper::DivergenceLoweringHelper(
@@ -220,6 +227,76 @@ bool DivergenceLoweringHelper::lowerTemporalDivergence() {
   return false;
 }
 
+bool DivergenceLoweringHelper::lowerTemporalDivergenceI1() {
+  MachineRegisterInfo::VRegAttrs BoolS1 = {ST->getBoolRC(), LLT::scalar(1)};
+  initializeLaneMaskRegisterAttributes(BoolS1);
+  MachineSSAUpdater SSAUpdater(*MF);
+
+  struct InstCyclePair {
+    MachineInstr *Inst;
+    const MachineCycle *Cycle;
+
+    InstCyclePair() {};
+    InstCyclePair(MachineInstr *I, const MachineCycle *C)
+        : Inst(I), Cycle(C) {};
+
+    bool operator<(const InstCyclePair &Val) const {
+      return Inst < Val.Inst && Cycle < Val.Cycle;
+    }
+  };
+
+  // Cache in case Inst is used outside Cycle by different UseInsts.
+  SmallDenseMap<std::pair<Register, const MachineCycle *>, Register>
+      InstCycleCache;
+  for (auto [Reg, UseInst, Cycle] : MUI->getTemporalDivergenceList()) {
+    if (MRI->getType(Reg) != LLT::scalar(1))
+      continue;
+
+    if (InstCycleCache.contains({Reg, Cycle}))
+      continue;
+    InstCycleCache[{Reg, Cycle}] = {};
+  }
+
+  for (auto InstCycleMapEntry : InstCycleCache) {
+    auto InstCycle = InstCycleMapEntry.getFirst();
+    Register Reg = InstCycle.first;
+    const MachineCycle *Cycle = InstCycle.second;
+
+    if (MRI->getType(Reg) != LLT::scalar(1))
+      continue;
+
+    Register MergedMask = MRI->createVirtualRegister(BoolS1);
+    SSAUpdater.Initialize(MergedMask);
+
+    MachineBasicBlock *MBB = MRI->getVRegDef(Reg)->getParent();
+    SSAUpdater.AddAvailableValue(MBB, MergedMask);
+
+    for (auto Entry : Cycle->getEntries()) {
+      for (MachineBasicBlock *Pred : Entry->predecessors()) {
+        if (!Cycle->contains(Pred)) {
+          B.setInsertPt(*Pred, Pred->getFirstTerminator());
+          auto ImplDef = B.buildInstr(AMDGPU::IMPLICIT_DEF, {BoolS1}, {});
+          SSAUpdater.AddAvailableValue(Pred, ImplDef.getReg(0));
+        }
+      }
+    }
+
+    buildMergeLaneMasks(*MBB, MBB->getFirstTerminator(), {}, MergedMask,
+                        SSAUpdater.GetValueInMiddleOfBlock(MBB), Reg);
+
+    InstCycleCache[InstCycle] = MergedMask;
+  }
+
+  for (auto [Reg, UseInst, Cycle] : MUI->getTemporalDivergenceList()) {
+    if (MRI->getType(Reg) != LLT::scalar(1))
+      continue;
+
+    replaceUsesOfRegInInstWith(Reg, UseInst, InstCycleCache[{Reg, Cycle}]);
+  }
+
+  return false;
+}
+
 } // End anonymous namespace.
 
 INITIALIZE_PASS_BEGIN(AMDGPUGlobalISelDivergenceLowering, DEBUG_TYPE,
@@ -259,6 +336,12 @@ bool AMDGPUGlobalISelDivergenceLowering::runOnMachineFunction(
 
   // Non-i1 temporal divergence lowering.
   Changed |= Helper.lowerTemporalDivergence();
+  // This covers both uniform and divergent i1s. Lane masks are in sgpr and need
+  // to be updated in each iteration.
+  Changed |= Helper.lowerTemporalDivergenceI1();
+  // Temporal divergence lowering of divergent i1 phi used outside of the cycle
+  // could also be handled by lowerPhis but we do it in lowerTempDivergenceI1
+  // since in some case lowerPhis does unnecessary lane mask merging.
   Changed |= Helper.lowerPhis();
   return Changed;
 }
