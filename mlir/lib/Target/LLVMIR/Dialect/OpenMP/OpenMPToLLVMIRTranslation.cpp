@@ -1817,7 +1817,7 @@ void TaskContextStructManager::createGEPsToPrivateVars() {
 
   // Create GEPs for each struct member
   llvmPrivateVars.clear();
-  llvmPrivateVars.reserve(privateVarTypes.size());
+  llvmPrivateVars.reserve(privateDecls.size());
   llvm::Value *zero = builder.getInt32(0);
   unsigned i = 0;
   for (auto privDecl : privateDecls) {
