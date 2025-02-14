@@ -43,8 +43,7 @@ program p
   ! CHECK:     %[[V_35:[0-9]+]] = fir.declare %[[V_34]] {fortran_attrs = #fir.var_attrs<parameter>, uniq_name = "_QQro._QM__fortran_builtinsT__builtin_ieee_round_type.0"}
   ! CHECK:     %[[V_36:[0-9]+]] = fir.load %[[V_19]] : !fir.ref<f32>
   ! CHECK:     %[[V_37:[0-9]+]] = fir.call @llvm.get.rounding() fastmath<contract> : () -> i32
-  ! CHECK:     %[[V_38:[0-9]+]] = fir.field_index _QM__fortran_builtinsT__builtin_ieee_round_type.mode, !fir.type<_QM__fortran_builtinsT__builtin_ieee_round_type{_QM__fortran_builtinsT__builtin_ieee_round_type.mode:i8}>
-  ! CHECK:     %[[V_39:[0-9]+]] = fir.coordinate_of %[[V_35]], %[[V_38]]
+  ! CHECK:     %[[V_39:[0-9]+]] = fir.coordinate_of %[[V_35]], _QM__fortran_builtinsT__builtin_ieee_round_type.mode 
   ! CHECK:     %[[V_40:[0-9]+]] = fir.load %[[V_39]] : !fir.ref<i8>
   ! CHECK:     %[[V_41:[0-9]+]] = fir.convert %[[V_40]] : (i8) -> i32
   ! CHECK:     fir.call @llvm.set.rounding(%[[V_41]]) fastmath<contract> : (i32) -> ()
@@ -56,7 +55,7 @@ program p
   ! CHECK:     %[[V_43:[0-9]+]] = fir.declare %[[V_34]] {fortran_attrs = #fir.var_attrs<parameter>, uniq_name = "_QQro._QM__fortran_builtinsT__builtin_ieee_round_type.0"}
   ! CHECK:     %[[V_44:[0-9]+]] = fir.load %[[V_19]] : !fir.ref<f32>
   ! CHECK:     %[[V_45:[0-9]+]] = fir.call @llvm.get.rounding() fastmath<contract> : () -> i32
-  ! CHECK:     %[[V_46:[0-9]+]] = fir.coordinate_of %[[V_43]], %[[V_38]]
+  ! CHECK:     %[[V_46:[0-9]+]] = fir.coordinate_of %[[V_43]], _QM__fortran_builtinsT__builtin_ieee_round_type.mode
   ! CHECK:     %[[V_47:[0-9]+]] = fir.load %[[V_46]] : !fir.ref<i8>
   ! CHECK:     %[[V_48:[0-9]+]] = fir.convert %[[V_47]] : (i8) -> i32
   ! CHECK:     fir.call @llvm.set.rounding(%[[V_48]]) fastmath<contract> : (i32) -> ()
@@ -92,7 +91,7 @@ program p
   ! CHECK:     %[[V_57:[0-9]+]] = fir.declare %[[V_56]] {fortran_attrs = #fir.var_attrs<parameter>, uniq_name = "_QQro._QM__fortran_builtinsT__builtin_ieee_round_type.1"}
   ! CHECK:     %[[V_58:[0-9]+]] = fir.load %[[V_21]] : !fir.ref<f16>
   ! CHECK:     %[[V_59:[0-9]+]] = fir.call @llvm.get.rounding() fastmath<contract> : () -> i32
-  ! CHECK:     %[[V_60:[0-9]+]] = fir.coordinate_of %[[V_57]], %[[V_38]]
+  ! CHECK:     %[[V_60:[0-9]+]] = fir.coordinate_of %[[V_57]], _QM__fortran_builtinsT__builtin_ieee_round_type.mode
   ! CHECK:     %[[V_61:[0-9]+]] = fir.load %[[V_60]] : !fir.ref<i8>
   ! CHECK:     %[[V_62:[0-9]+]] = fir.convert %[[V_61]] : (i8) -> i32
   ! CHECK:     fir.call @llvm.set.rounding(%[[V_62]]) fastmath<contract> : (i32) -> ()
@@ -106,7 +105,7 @@ program p
   ! CHECK:     %[[V_66:[0-9]+]] = fir.declare %[[V_56]] {fortran_attrs = #fir.var_attrs<parameter>, uniq_name = "_QQro._QM__fortran_builtinsT__builtin_ieee_round_type.1"}
   ! CHECK:     %[[V_67:[0-9]+]] = fir.load %[[V_21]] : !fir.ref<f16>
   ! CHECK:     %[[V_68:[0-9]+]] = fir.call @llvm.get.rounding() fastmath<contract> : () -> i32
-  ! CHECK:     %[[V_69:[0-9]+]] = fir.coordinate_of %[[V_66]], %[[V_38]]
+  ! CHECK:     %[[V_69:[0-9]+]] = fir.coordinate_of %[[V_66]], _QM__fortran_builtinsT__builtin_ieee_round_type.mode
   ! CHECK:     %[[V_70:[0-9]+]] = fir.load %[[V_69]] : !fir.ref<i8>
   ! CHECK:     %[[V_71:[0-9]+]] = fir.convert %[[V_70]] : (i8) -> i32
   ! CHECK:     fir.call @llvm.set.rounding(%[[V_71]]) fastmath<contract> : (i32) -> ()
@@ -157,7 +156,7 @@ program p
   ! CHECK:     %[[V_87:[0-9]+]] = fir.declare %[[V_86]] {fortran_attrs = #fir.var_attrs<parameter>, uniq_name = "_QQro._QM__fortran_builtinsT__builtin_ieee_round_type.2"}
   ! CHECK:     %[[V_88:[0-9]+]] = fir.load %[[V_23]] : !fir.ref<bf16>
   ! CHECK:     %[[V_89:[0-9]+]] = fir.call @llvm.get.rounding() fastmath<contract> : () -> i32
-  ! CHECK:     %[[V_90:[0-9]+]] = fir.coordinate_of %[[V_87]], %[[V_38]]
+  ! CHECK:     %[[V_90:[0-9]+]] = fir.coordinate_of %[[V_87]], _QM__fortran_builtinsT__builtin_ieee_round_type.mode
   ! CHECK:     %[[V_91:[0-9]+]] = fir.load %[[V_90]] : !fir.ref<i8>
   ! CHECK:     %[[V_92:[0-9]+]] = fir.convert %[[V_91]] : (i8) -> i32
   ! CHECK:     fir.call @llvm.set.rounding(%[[V_92]]) fastmath<contract> : (i32) -> ()
@@ -191,8 +190,7 @@ program p
 
   ! CHECK:     %[[V_102:[0-9]+]] = fir.address_of(@_QQro._QMieee_arithmeticTieee_class_type.3)
   ! CHECK:     %[[V_103:[0-9]+]] = fir.declare %[[V_102]] {fortran_attrs = #fir.var_attrs<parameter>, uniq_name = "_QQro._QMieee_arithmeticTieee_class_type.3"}
-  ! CHECK:     %[[V_104:[0-9]+]] = fir.field_index _QMieee_arithmeticTieee_class_type.which, !fir.type<_QMieee_arithmeticTieee_class_type{_QMieee_arithmeticTieee_class_type.which:i8}>
-  ! CHECK:     %[[V_105:[0-9]+]] = fir.coordinate_of %[[V_103]], %[[V_104]]
+  ! CHECK:     %[[V_105:[0-9]+]] = fir.coordinate_of %[[V_103]], _QMieee_arithmeticTieee_class_type.which
   ! CHECK:     %[[V_106:[0-9]+]] = fir.load %[[V_105]] : !fir.ref<i8>
   ! CHECK:     %[[V_107:[0-9]+]] = fir.address_of(@_FortranAIeeeValueTable_4) : !fir.ref<!fir.array<12xi32>>
   ! CHECK:     %[[V_108:[0-9]+]] = fir.coordinate_of %[[V_107]], %[[V_106]]
@@ -215,7 +213,7 @@ program p
   ! CHECK:     %[[V_115:[0-9]+]] = fir.declare %[[V_114]] {fortran_attrs = #fir.var_attrs<parameter>, uniq_name = "_QQro._QM__fortran_builtinsT__builtin_ieee_round_type.4"}
   ! CHECK:     %[[V_116:[0-9]+]] = fir.load %[[V_25]] : !fir.ref<f32>
   ! CHECK:     %[[V_117:[0-9]+]] = fir.call @llvm.get.rounding() fastmath<contract> : () -> i32
-  ! CHECK:     %[[V_118:[0-9]+]] = fir.coordinate_of %[[V_115]], %[[V_38]]
+  ! CHECK:     %[[V_118:[0-9]+]] = fir.coordinate_of %[[V_115]], _QM__fortran_builtinsT__builtin_ieee_round_type.mode
   ! CHECK:     %[[V_119:[0-9]+]] = fir.load %[[V_118]] : !fir.ref<i8>
   ! CHECK:     %[[V_120:[0-9]+]] = fir.convert %[[V_119]] : (i8) -> i32
   ! CHECK:     fir.call @llvm.set.rounding(%[[V_120]]) fastmath<contract> : (i32) -> ()
