@@ -215,7 +215,7 @@ public:
     _LIBCPP_ASSERT_UNCATEGORIZED(
         false == ([&]<size_t... _Idxs>(index_sequence<_Idxs...>) {
           size_type __prod = 1;
-          return (__builtin_mul_overflow(__prod, extent(_Idxs), &__prod) || ... || false);
+          return (__builtin_mul_overflow(__prod, extent(_Idxs), std::addressof(__prod)) || ... || false);
         }(make_index_sequence<rank()>())),
         "mdspan: size() is not representable as size_type");
     return [&]<size_t... _Idxs>(index_sequence<_Idxs...>) {

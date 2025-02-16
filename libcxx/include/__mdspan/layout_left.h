@@ -58,7 +58,7 @@ private:
 
     index_type __prod = __ext.extent(0);
     for (rank_type __r = 1; __r < extents_type::rank(); __r++) {
-      bool __overflowed = __builtin_mul_overflow(__prod, __ext.extent(__r), &__prod);
+      bool __overflowed = __builtin_mul_overflow(__prod, __ext.extent(__r), std::addressof(__prod));
       if (__overflowed)
         return false;
     }
