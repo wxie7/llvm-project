@@ -125,8 +125,8 @@ define double @test_pow_fast_f64__integral_y(double %x, i32 %y.i) {
 ; CHECK-NEXT:    v_writelane_b32 v43, s35, 3
 ; CHECK-NEXT:    v_writelane_b32 v43, s36, 4
 ; CHECK-NEXT:    v_writelane_b32 v43, s37, 5
-; CHECK-NEXT:    v_writelane_b32 v43, s46, 6
-; CHECK-NEXT:    v_writelane_b32 v43, s47, 7
+; CHECK-NEXT:    v_writelane_b32 v43, s38, 6
+; CHECK-NEXT:    v_writelane_b32 v43, s39, 7
 ; CHECK-NEXT:    s_addk_i32 s32, 0x800
 ; CHECK-NEXT:    v_writelane_b32 v43, s48, 8
 ; CHECK-NEXT:    v_writelane_b32 v43, s49, 9
@@ -153,7 +153,7 @@ define double @test_pow_fast_f64__integral_y(double %x, i32 %y.i) {
 ; CHECK-NEXT:    s_mov_b32 s53, s12
 ; CHECK-NEXT:    s_mov_b64 s[34:35], s[10:11]
 ; CHECK-NEXT:    s_mov_b64 s[36:37], s[8:9]
-; CHECK-NEXT:    s_mov_b64 s[46:47], s[6:7]
+; CHECK-NEXT:    s_mov_b64 s[38:39], s[6:7]
 ; CHECK-NEXT:    s_waitcnt lgkmcnt(0)
 ; CHECK-NEXT:    s_swappc_b64 s[30:31], s[16:17]
 ; CHECK-NEXT:    v_cvt_f64_i32_e32 v[2:3], v41
@@ -163,7 +163,7 @@ define double @test_pow_fast_f64__integral_y(double %x, i32 %y.i) {
 ; CHECK-NEXT:    s_load_dwordx2 s[16:17], s[4:5], 0x0
 ; CHECK-NEXT:    s_mov_b64 s[4:5], s[48:49]
 ; CHECK-NEXT:    v_mul_f64 v[0:1], v[0:1], v[2:3]
-; CHECK-NEXT:    s_mov_b64 s[6:7], s[46:47]
+; CHECK-NEXT:    s_mov_b64 s[6:7], s[38:39]
 ; CHECK-NEXT:    s_mov_b64 s[8:9], s[36:37]
 ; CHECK-NEXT:    s_mov_b64 s[10:11], s[34:35]
 ; CHECK-NEXT:    s_mov_b32 s12, s53
@@ -185,8 +185,8 @@ define double @test_pow_fast_f64__integral_y(double %x, i32 %y.i) {
 ; CHECK-NEXT:    v_readlane_b32 s50, v43, 10
 ; CHECK-NEXT:    v_readlane_b32 s49, v43, 9
 ; CHECK-NEXT:    v_readlane_b32 s48, v43, 8
-; CHECK-NEXT:    v_readlane_b32 s47, v43, 7
-; CHECK-NEXT:    v_readlane_b32 s46, v43, 6
+; CHECK-NEXT:    v_readlane_b32 s39, v43, 7
+; CHECK-NEXT:    v_readlane_b32 s38, v43, 6
 ; CHECK-NEXT:    v_readlane_b32 s37, v43, 5
 ; CHECK-NEXT:    v_readlane_b32 s36, v43, 4
 ; CHECK-NEXT:    v_readlane_b32 s35, v43, 3
@@ -266,8 +266,8 @@ define double @test_powr_fast_f64(double %x, double %y) {
 ; CHECK-NEXT:    v_writelane_b32 v43, s35, 3
 ; CHECK-NEXT:    v_writelane_b32 v43, s36, 4
 ; CHECK-NEXT:    v_writelane_b32 v43, s37, 5
-; CHECK-NEXT:    v_writelane_b32 v43, s46, 6
-; CHECK-NEXT:    v_writelane_b32 v43, s47, 7
+; CHECK-NEXT:    v_writelane_b32 v43, s38, 6
+; CHECK-NEXT:    v_writelane_b32 v43, s39, 7
 ; CHECK-NEXT:    s_addk_i32 s32, 0x800
 ; CHECK-NEXT:    v_writelane_b32 v43, s48, 8
 ; CHECK-NEXT:    v_writelane_b32 v43, s49, 9
@@ -293,7 +293,7 @@ define double @test_powr_fast_f64(double %x, double %y) {
 ; CHECK-NEXT:    s_mov_b32 s53, s12
 ; CHECK-NEXT:    s_mov_b64 s[34:35], s[10:11]
 ; CHECK-NEXT:    s_mov_b64 s[36:37], s[8:9]
-; CHECK-NEXT:    s_mov_b64 s[46:47], s[6:7]
+; CHECK-NEXT:    s_mov_b64 s[38:39], s[6:7]
 ; CHECK-NEXT:    s_waitcnt lgkmcnt(0)
 ; CHECK-NEXT:    s_swappc_b64 s[30:31], s[16:17]
 ; CHECK-NEXT:    v_mul_f64 v[0:1], v[40:41], v[0:1]
@@ -302,7 +302,7 @@ define double @test_powr_fast_f64(double %x, double %y) {
 ; CHECK-NEXT:    s_addc_u32 s5, s5, _Z4exp2d@gotpcrel32@hi+12
 ; CHECK-NEXT:    s_load_dwordx2 s[16:17], s[4:5], 0x0
 ; CHECK-NEXT:    s_mov_b64 s[4:5], s[48:49]
-; CHECK-NEXT:    s_mov_b64 s[6:7], s[46:47]
+; CHECK-NEXT:    s_mov_b64 s[6:7], s[38:39]
 ; CHECK-NEXT:    s_mov_b64 s[8:9], s[36:37]
 ; CHECK-NEXT:    s_mov_b64 s[10:11], s[34:35]
 ; CHECK-NEXT:    s_mov_b32 s12, s53
@@ -321,8 +321,8 @@ define double @test_powr_fast_f64(double %x, double %y) {
 ; CHECK-NEXT:    v_readlane_b32 s50, v43, 10
 ; CHECK-NEXT:    v_readlane_b32 s49, v43, 9
 ; CHECK-NEXT:    v_readlane_b32 s48, v43, 8
-; CHECK-NEXT:    v_readlane_b32 s47, v43, 7
-; CHECK-NEXT:    v_readlane_b32 s46, v43, 6
+; CHECK-NEXT:    v_readlane_b32 s39, v43, 7
+; CHECK-NEXT:    v_readlane_b32 s38, v43, 6
 ; CHECK-NEXT:    v_readlane_b32 s37, v43, 5
 ; CHECK-NEXT:    v_readlane_b32 s36, v43, 4
 ; CHECK-NEXT:    v_readlane_b32 s35, v43, 3
@@ -409,8 +409,8 @@ define double @test_pown_fast_f64(double %x, i32 %y) {
 ; CHECK-NEXT:    v_writelane_b32 v43, s35, 3
 ; CHECK-NEXT:    v_writelane_b32 v43, s36, 4
 ; CHECK-NEXT:    v_writelane_b32 v43, s37, 5
-; CHECK-NEXT:    v_writelane_b32 v43, s46, 6
-; CHECK-NEXT:    v_writelane_b32 v43, s47, 7
+; CHECK-NEXT:    v_writelane_b32 v43, s38, 6
+; CHECK-NEXT:    v_writelane_b32 v43, s39, 7
 ; CHECK-NEXT:    s_addk_i32 s32, 0x800
 ; CHECK-NEXT:    v_writelane_b32 v43, s48, 8
 ; CHECK-NEXT:    v_writelane_b32 v43, s49, 9
@@ -437,7 +437,7 @@ define double @test_pown_fast_f64(double %x, i32 %y) {
 ; CHECK-NEXT:    s_mov_b32 s53, s12
 ; CHECK-NEXT:    s_mov_b64 s[34:35], s[10:11]
 ; CHECK-NEXT:    s_mov_b64 s[36:37], s[8:9]
-; CHECK-NEXT:    s_mov_b64 s[46:47], s[6:7]
+; CHECK-NEXT:    s_mov_b64 s[38:39], s[6:7]
 ; CHECK-NEXT:    s_waitcnt lgkmcnt(0)
 ; CHECK-NEXT:    s_swappc_b64 s[30:31], s[16:17]
 ; CHECK-NEXT:    v_cvt_f64_i32_e32 v[2:3], v41
@@ -447,7 +447,7 @@ define double @test_pown_fast_f64(double %x, i32 %y) {
 ; CHECK-NEXT:    s_load_dwordx2 s[16:17], s[4:5], 0x0
 ; CHECK-NEXT:    s_mov_b64 s[4:5], s[48:49]
 ; CHECK-NEXT:    v_mul_f64 v[0:1], v[0:1], v[2:3]
-; CHECK-NEXT:    s_mov_b64 s[6:7], s[46:47]
+; CHECK-NEXT:    s_mov_b64 s[6:7], s[38:39]
 ; CHECK-NEXT:    s_mov_b64 s[8:9], s[36:37]
 ; CHECK-NEXT:    s_mov_b64 s[10:11], s[34:35]
 ; CHECK-NEXT:    s_mov_b32 s12, s53
@@ -469,8 +469,8 @@ define double @test_pown_fast_f64(double %x, i32 %y) {
 ; CHECK-NEXT:    v_readlane_b32 s50, v43, 10
 ; CHECK-NEXT:    v_readlane_b32 s49, v43, 9
 ; CHECK-NEXT:    v_readlane_b32 s48, v43, 8
-; CHECK-NEXT:    v_readlane_b32 s47, v43, 7
-; CHECK-NEXT:    v_readlane_b32 s46, v43, 6
+; CHECK-NEXT:    v_readlane_b32 s39, v43, 7
+; CHECK-NEXT:    v_readlane_b32 s38, v43, 6
 ; CHECK-NEXT:    v_readlane_b32 s37, v43, 5
 ; CHECK-NEXT:    v_readlane_b32 s36, v43, 4
 ; CHECK-NEXT:    v_readlane_b32 s35, v43, 3
@@ -552,8 +552,8 @@ define double @test_pown_fast_f64_known_even(double %x, i32 %y.arg) {
 ; CHECK-NEXT:    v_writelane_b32 v42, s35, 3
 ; CHECK-NEXT:    v_writelane_b32 v42, s36, 4
 ; CHECK-NEXT:    v_writelane_b32 v42, s37, 5
-; CHECK-NEXT:    v_writelane_b32 v42, s46, 6
-; CHECK-NEXT:    v_writelane_b32 v42, s47, 7
+; CHECK-NEXT:    v_writelane_b32 v42, s38, 6
+; CHECK-NEXT:    v_writelane_b32 v42, s39, 7
 ; CHECK-NEXT:    s_addk_i32 s32, 0x400
 ; CHECK-NEXT:    v_writelane_b32 v42, s48, 8
 ; CHECK-NEXT:    v_writelane_b32 v42, s49, 9
@@ -577,7 +577,7 @@ define double @test_pown_fast_f64_known_even(double %x, i32 %y.arg) {
 ; CHECK-NEXT:    s_mov_b32 s53, s12
 ; CHECK-NEXT:    s_mov_b64 s[34:35], s[10:11]
 ; CHECK-NEXT:    s_mov_b64 s[36:37], s[8:9]
-; CHECK-NEXT:    s_mov_b64 s[46:47], s[6:7]
+; CHECK-NEXT:    s_mov_b64 s[38:39], s[6:7]
 ; CHECK-NEXT:    v_lshlrev_b32_e32 v41, 1, v2
 ; CHECK-NEXT:    s_waitcnt lgkmcnt(0)
 ; CHECK-NEXT:    s_swappc_b64 s[30:31], s[16:17]
@@ -588,7 +588,7 @@ define double @test_pown_fast_f64_known_even(double %x, i32 %y.arg) {
 ; CHECK-NEXT:    s_load_dwordx2 s[16:17], s[4:5], 0x0
 ; CHECK-NEXT:    s_mov_b64 s[4:5], s[48:49]
 ; CHECK-NEXT:    v_mul_f64 v[0:1], v[0:1], v[2:3]
-; CHECK-NEXT:    s_mov_b64 s[6:7], s[46:47]
+; CHECK-NEXT:    s_mov_b64 s[6:7], s[38:39]
 ; CHECK-NEXT:    s_mov_b64 s[8:9], s[36:37]
 ; CHECK-NEXT:    s_mov_b64 s[10:11], s[34:35]
 ; CHECK-NEXT:    s_mov_b32 s12, s53
@@ -606,8 +606,8 @@ define double @test_pown_fast_f64_known_even(double %x, i32 %y.arg) {
 ; CHECK-NEXT:    v_readlane_b32 s50, v42, 10
 ; CHECK-NEXT:    v_readlane_b32 s49, v42, 9
 ; CHECK-NEXT:    v_readlane_b32 s48, v42, 8
-; CHECK-NEXT:    v_readlane_b32 s47, v42, 7
-; CHECK-NEXT:    v_readlane_b32 s46, v42, 6
+; CHECK-NEXT:    v_readlane_b32 s39, v42, 7
+; CHECK-NEXT:    v_readlane_b32 s38, v42, 6
 ; CHECK-NEXT:    v_readlane_b32 s37, v42, 5
 ; CHECK-NEXT:    v_readlane_b32 s36, v42, 4
 ; CHECK-NEXT:    v_readlane_b32 s35, v42, 3
@@ -694,8 +694,8 @@ define double @test_pown_fast_f64_known_odd(double %x, i32 %y.arg) {
 ; CHECK-NEXT:    v_writelane_b32 v43, s35, 3
 ; CHECK-NEXT:    v_writelane_b32 v43, s36, 4
 ; CHECK-NEXT:    v_writelane_b32 v43, s37, 5
-; CHECK-NEXT:    v_writelane_b32 v43, s46, 6
-; CHECK-NEXT:    v_writelane_b32 v43, s47, 7
+; CHECK-NEXT:    v_writelane_b32 v43, s38, 6
+; CHECK-NEXT:    v_writelane_b32 v43, s39, 7
 ; CHECK-NEXT:    s_addk_i32 s32, 0x800
 ; CHECK-NEXT:    v_writelane_b32 v43, s48, 8
 ; CHECK-NEXT:    v_writelane_b32 v43, s49, 9
@@ -721,7 +721,7 @@ define double @test_pown_fast_f64_known_odd(double %x, i32 %y.arg) {
 ; CHECK-NEXT:    s_mov_b32 s53, s12
 ; CHECK-NEXT:    s_mov_b64 s[34:35], s[10:11]
 ; CHECK-NEXT:    s_mov_b64 s[36:37], s[8:9]
-; CHECK-NEXT:    s_mov_b64 s[46:47], s[6:7]
+; CHECK-NEXT:    s_mov_b64 s[38:39], s[6:7]
 ; CHECK-NEXT:    v_or_b32_e32 v42, 1, v2
 ; CHECK-NEXT:    s_waitcnt lgkmcnt(0)
 ; CHECK-NEXT:    s_swappc_b64 s[30:31], s[16:17]
@@ -732,7 +732,7 @@ define double @test_pown_fast_f64_known_odd(double %x, i32 %y.arg) {
 ; CHECK-NEXT:    s_load_dwordx2 s[16:17], s[4:5], 0x0
 ; CHECK-NEXT:    s_mov_b64 s[4:5], s[48:49]
 ; CHECK-NEXT:    v_mul_f64 v[0:1], v[0:1], v[2:3]
-; CHECK-NEXT:    s_mov_b64 s[6:7], s[46:47]
+; CHECK-NEXT:    s_mov_b64 s[6:7], s[38:39]
 ; CHECK-NEXT:    s_mov_b64 s[8:9], s[36:37]
 ; CHECK-NEXT:    s_mov_b64 s[10:11], s[34:35]
 ; CHECK-NEXT:    s_mov_b32 s12, s53
@@ -753,8 +753,8 @@ define double @test_pown_fast_f64_known_odd(double %x, i32 %y.arg) {
 ; CHECK-NEXT:    v_readlane_b32 s50, v43, 10
 ; CHECK-NEXT:    v_readlane_b32 s49, v43, 9
 ; CHECK-NEXT:    v_readlane_b32 s48, v43, 8
-; CHECK-NEXT:    v_readlane_b32 s47, v43, 7
-; CHECK-NEXT:    v_readlane_b32 s46, v43, 6
+; CHECK-NEXT:    v_readlane_b32 s39, v43, 7
+; CHECK-NEXT:    v_readlane_b32 s38, v43, 6
 ; CHECK-NEXT:    v_readlane_b32 s37, v43, 5
 ; CHECK-NEXT:    v_readlane_b32 s36, v43, 4
 ; CHECK-NEXT:    v_readlane_b32 s35, v43, 3
