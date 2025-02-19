@@ -2311,6 +2311,8 @@ bool SIFoldOperandsImpl::tryOptimizeAGPRPhis(MachineBasicBlock &MBB) {
 }
 
 bool SIFoldOperandsImpl::run(MachineFunction &MF) {
+  MFPropsModifier _(*this, MF);
+
   MRI = &MF.getRegInfo();
   ST = &MF.getSubtarget<GCNSubtarget>();
   TII = ST->getInstrInfo();
