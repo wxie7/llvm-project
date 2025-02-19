@@ -2478,14 +2478,16 @@ void fir::DoLoopOp::build(mlir::OpBuilder &builder,
                           bool finalCountValue, mlir::ValueRange iterArgs,
                           mlir::ValueRange reduceOperands,
                           llvm::ArrayRef<mlir::Attribute> reduceAttrs,
-                          llvm::ArrayRef<mlir::NamedAttribute> attributes) {
+                          llvm::ArrayRef<mlir::NamedAttribute> attributes,
+                          mlir::ValueRange privateVars,
+                          mlir::ArrayRef<mlir::Attribute> privateSyms) {
   result.addOperands({lb, ub, step});
   result.addOperands(reduceOperands);
   result.addOperands(iterArgs);
   result.addAttribute(getOperandSegmentSizeAttr(),
                       builder.getDenseI32ArrayAttr(
                           {1, 1, 1, static_cast<int32_t>(reduceOperands.size()),
-                           static_cast<int32_t>(iterArgs.size())}));
+                           static_cast<int32_t>(iterArgs.size()), 0}));
   if (finalCountValue) {
     result.addTypes(builder.getIndexType());
     result.addAttribute(getFinalValueAttrName(result.name),
@@ -2591,7 +2593,7 @@ mlir::ParseResult fir::DoLoopOp::parse(mlir::OpAsmParser &parser,
   result.addAttribute(getOperandSegmentSizeAttr(),
                       builder.getDenseI32ArrayAttr(
                           {1, 1, 1, static_cast<int32_t>(reduceOperands.size()),
-                           static_cast<int32_t>(iterOperands.size())}));
+                           static_cast<int32_t>(iterOperands.size()), 0}));
 
   if (parser.parseOptionalAttrDictWithKeyword(result.attributes))
     return mlir::failure();
