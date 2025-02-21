@@ -3327,31 +3327,17 @@ llvm.func @distribute_wsloop(%lb : i32, %ub : i32, %step : i32) {
 // CHECK-LABEL: define void @distribute_wsloop
 // CHECK:         call void{{.*}}@__kmpc_fork_call({{.*}}, ptr @[[OUTLINED_PARALLEL:.*]],
 
-// CHECK:       define internal void @[[OUTLINED_PARALLEL]]({{.*}})
-// CHECK:         %[[ARGS:.*]] = alloca { i32, i32, i32, ptr, ptr, ptr, ptr }
-// CHECK:         %[[LASTITER_ALLOC:.*]] = alloca i32
-// CHECK:         %[[LB_ALLOC:.*]] = alloca i32
-// CHECK:         %[[UB_ALLOC:.*]] = alloca i32
-// CHECK:         %[[STRIDE_ALLOC:.*]] = alloca i32
-// CHECK:         %[[LB_ARG:.*]] = getelementptr {{.*}}, ptr %[[ARGS]], i32 0, i32 3
-// CHECK:         store ptr %[[LB_ALLOC]], ptr %[[LB_ARG]]
-// CHECK:         %[[UB_ARG:.*]] = getelementptr {{.*}}, ptr %[[ARGS]], i32 0, i32 4
-// CHECK:         store ptr %[[UB_ALLOC]], ptr %[[UB_ARG]]
-// CHECK:         %[[STRIDE_ARG:.*]] = getelementptr {{.*}}, ptr %[[ARGS]], i32 0, i32 5
-// CHECK:         store ptr %[[STRIDE_ALLOC]], ptr %[[STRIDE_ARG]]
-// CHECK:         %[[LASTITER_ARG:.*]] = getelementptr {{.*}}, ptr %[[ARGS]], i32 0, i32 6
-// CHECK:         store ptr %[[LASTITER_ALLOC]], ptr %[[LASTITER_ARG]]
-// CHECK:         call void @[[OUTLINED_DISTRIBUTE:.*]](ptr %[[ARGS]])
+// CHECK:       define internal void @[[OUTLINED_PARALLEL]]
+// CHECK:         call void @[[OUTLINED_DISTRIBUTE:.*]]({{.*}})
 
-// CHECK:       define internal void @[[OUTLINED_DISTRIBUTE]](ptr %[[ARGS_STRUCT:.*]])
-// CHECK:         %[[LB_PTR:.*]] = getelementptr {{.*}}, ptr %[[ARGS_STRUCT]], i32 0, i32 3
-// CHECK:         %[[LB:.*]] = load ptr, ptr %[[LB_PTR]]
-// CHECK:         %[[UB_PTR:.*]] = getelementptr {{.*}}, ptr %[[ARGS_STRUCT]], i32 0, i32 4
-// CHECK:         %[[UB:.*]] = load ptr, ptr %[[UB_PTR]]
-// CHECK:         %[[STRIDE_PTR:.*]] = getelementptr {{.*}}, ptr %[[ARGS_STRUCT]], i32 0, i32 5
-// CHECK:         %[[STRIDE:.*]] = load ptr, ptr %[[STRIDE_PTR]]
-// CHECK:         %[[LASTITER_PTR:.*]] = getelementptr {{.*}}, ptr %[[ARGS_STRUCT]], i32 0, i32 6
-// CHECK:         %[[LASTITER:.*]] = load ptr, ptr %[[LASTITER_PTR]]
+// CHECK:       define internal void @[[OUTLINED_DISTRIBUTE]]
+// CHECK:         %[[LASTITER:.*]] = alloca i32
+// CHECK:         %[[LB:.*]] = alloca i32
+// CHECK:         %[[UB:.*]] = alloca i32
+// CHECK:         %[[STRIDE:.*]] = alloca i32
+// CHECK:         br label %[[AFTER_ALLOCA:.*]]
+
+// CHECK:       [[AFTER_ALLOCA]]:
 // CHECK:         br label %[[DISTRIBUTE_BODY:.*]]
 
 // CHECK:       [[DISTRIBUTE_BODY]]:
