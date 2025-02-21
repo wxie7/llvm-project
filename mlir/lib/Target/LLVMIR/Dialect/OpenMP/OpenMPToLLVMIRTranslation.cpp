@@ -4097,8 +4097,8 @@ extractHostEvalClauses(omp::TargetOp targetOp, Value &numThreads,
             found = processBounds(loopOp.getLoopUpperBounds(), upperBounds) ||
                     found;
             found = processBounds(loopOp.getLoopSteps(), steps) || found;
-            if (!found)
-              llvm_unreachable("unsupported host_eval use");
+            (void)found;
+            assert(found && "unsupported host_eval use");
           })
           .Default([](Operation *) {
             llvm_unreachable("unsupported host_eval use");
