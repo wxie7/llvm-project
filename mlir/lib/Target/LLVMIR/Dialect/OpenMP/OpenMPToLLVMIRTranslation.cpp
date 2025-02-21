@@ -82,10 +82,7 @@ class OpenMPLoopInfoStackFrame
     : public LLVM::ModuleTranslation::StackFrameBase<OpenMPLoopInfoStackFrame> {
 public:
   MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(OpenMPLoopInfoStackFrame)
-
-  explicit OpenMPLoopInfoStackFrame(llvm::CanonicalLoopInfo *loopInfo)
-      : loopInfo(loopInfo) {}
-  llvm::CanonicalLoopInfo *loopInfo;
+  llvm::CanonicalLoopInfo *loopInfo = nullptr;
 };
 
 /// Custom error class to signal translation errors that don't need reporting,
@@ -348,13 +345,13 @@ static LogicalResult handleError(llvm::Expected<T> &result, Operation &op) {
 /// normal operations in the builder.
 static llvm::OpenMPIRBuilder::InsertPointTy
 findAllocaInsertPoint(llvm::IRBuilderBase &builder,
-                      const LLVM::ModuleTranslation &moduleTranslation) {
+                      LLVM::ModuleTranslation &moduleTranslation) {
   // If there is an alloca insertion point on stack, i.e. we are in a nested
   // operation and a specific point was provided by some surrounding operation,
   // use it.
   llvm::OpenMPIRBuilder::InsertPointTy allocaInsertPoint;
   WalkResult walkResult = moduleTranslation.stackWalk<OpenMPAllocaStackFrame>(
-      [&](const OpenMPAllocaStackFrame &frame) {
+      [&](OpenMPAllocaStackFrame &frame) {
         allocaInsertPoint = frame.allocaInsertPoint;
         return WalkResult::interrupt();
       });
@@ -386,13 +383,13 @@ findAllocaInsertPoint(llvm::IRBuilderBase &builder,
 }
 
 /// Find the loop information structure for the loop nest being translated. It
-/// will not return a value unless called from the translation function for
+/// will return a `null` value unless called from the translation function for
 /// a loop wrapper operation after successfully translating its body.
-static std::optional<llvm::CanonicalLoopInfo *>
+static llvm::CanonicalLoopInfo *
 findCurrentLoopInfo(LLVM::ModuleTranslation &moduleTranslation) {
-  std::optional<llvm::CanonicalLoopInfo *> loopInfo;
+  llvm::CanonicalLoopInfo *loopInfo = nullptr;
   moduleTranslation.stackWalk<OpenMPLoopInfoStackFrame>(
-      [&](const OpenMPLoopInfoStackFrame &frame) {
+      [&](OpenMPLoopInfoStackFrame &frame) {
         loopInfo = frame.loopInfo;
         return WalkResult::interrupt();
       });
@@ -1987,7 +1984,7 @@ convertOmpWsloop(Operation &opInst, llvm::IRBuilderBase &builder,
     return failure();
 
   builder.SetInsertPoint(*regionBlock, (*regionBlock)->begin());
-  llvm::CanonicalLoopInfo *loopInfo = *findCurrentLoopInfo(moduleTranslation);
+  llvm::CanonicalLoopInfo *loopInfo = findCurrentLoopInfo(moduleTranslation);
 
   llvm::OpenMPIRBuilder::InsertPointOrErrorTy wsloopIP =
       ompBuilder->applyWorkshareLoop(
@@ -2270,16 +2267,16 @@ convertOmpSimd(Operation &opInst, llvm::IRBuilderBase &builder,
     llvm::Value *alignment = nullptr;
     llvm::Value *llvmVal = moduleTranslation.lookupValue(operands[i]);
     llvm::Type *ty = llvmVal->getType();
-    if (auto intAttr = llvm::dyn_cast<IntegerAttr>((*alignmentValues)[i])) {
-      alignment = builder.getInt64(intAttr.getInt());
-      assert(ty->isPointerTy() && "Invalid type for aligned variable");
-      assert(alignment && "Invalid alignment value");
-      auto curInsert = builder.saveIP();
-      builder.SetInsertPoint(sourceBlock);
-      llvmVal = builder.CreateLoad(ty, llvmVal);
-      builder.restoreIP(curInsert);
-      alignedVars[llvmVal] = alignment;
-    }
+
+    auto intAttr = cast<IntegerAttr>((*alignmentValues)[i]);
+    alignment = builder.getInt64(intAttr.getInt());
+    assert(ty->isPointerTy() && "Invalid type for aligned variable");
+    assert(alignment && "Invalid alignment value");
+    auto curInsert = builder.saveIP();
+    builder.SetInsertPoint(sourceBlock);
+    llvmVal = builder.CreateLoad(ty, llvmVal);
+    builder.restoreIP(curInsert);
+    alignedVars[llvmVal] = alignment;
   }
 
   llvm::Expected<llvm::BasicBlock *> regionBlock = convertOmpOpRegions(
@@ -2289,7 +2286,7 @@ convertOmpSimd(Operation &opInst, llvm::IRBuilderBase &builder,
     return failure();
 
   builder.SetInsertPoint(*regionBlock, (*regionBlock)->begin());
-  llvm::CanonicalLoopInfo *loopInfo = *findCurrentLoopInfo(moduleTranslation);
+  llvm::CanonicalLoopInfo *loopInfo = findCurrentLoopInfo(moduleTranslation);
   ompBuilder->applySimd(loopInfo, alignedVars,
                         simdOp.getIfExpr()
                             ? moduleTranslation.lookupValue(simdOp.getIfExpr())
@@ -2377,11 +2374,13 @@ convertOmpLoopNest(Operation &opInst, llvm::IRBuilderBase &builder,
   llvm::OpenMPIRBuilder::InsertPointTy afterIP =
       loopInfos.front()->getAfterIP();
 
-  // Add a stack frame holding information about the resulting loop after
-  // applying transformations, to be further transformed by parent loop
-  // wrappers.
-  moduleTranslation.stackPush<OpenMPLoopInfoStackFrame>(
-      ompBuilder->collapseLoops(ompLoc.DL, loopInfos, {}));
+  // Update the stack frame created for this loop to point to the resulting loop
+  // after applying transformations.
+  moduleTranslation.stackWalk<OpenMPLoopInfoStackFrame>(
+      [&](OpenMPLoopInfoStackFrame &frame) {
+        frame.loopInfo = ompBuilder->collapseLoops(ompLoc.DL, loopInfos, {});
+        return WalkResult::interrupt();
+      });
 
   // Continue building IR after the loop. Note that the LoopInfo returned by
   // `collapseLoops` points inside the outermost loop and is intended for
@@ -4576,6 +4575,19 @@ convertHostOrTargetOperation(Operation *op, llvm::IRBuilderBase &builder,
                              LLVM::ModuleTranslation &moduleTranslation) {
   llvm::OpenMPIRBuilder *ompBuilder = moduleTranslation.getOpenMPBuilder();
 
+  // For each loop, introduce one stack frame to hold loop information. Ensure
+  // this is only done for the outermost loop wrapper to prevent introducing
+  // multiple stack frames for a single loop. Initially set to null, the loop
+  // information structure is initialized during translation of the nested
+  // omp.loop_nest operation, making it available to translation of all loop
+  // wrappers after their body has been successfully translated.
+  bool isOutermostLoopWrapper =
+      isa_and_present<omp::LoopWrapperInterface>(op) &&
+      !dyn_cast_if_present<omp::LoopWrapperInterface>(op->getParentOp());
+
+  if (isOutermostLoopWrapper)
+    moduleTranslation.stackPush<OpenMPLoopInfoStackFrame>();
+
   auto result =
       llvm::TypeSwitch<Operation *, LogicalResult>(op)
           .Case([&](omp::BarrierOp op) -> LogicalResult {
@@ -4700,19 +4712,7 @@ convertHostOrTargetOperation(Operation *op, llvm::IRBuilderBase &builder,
                    << "not yet implemented: " << inst->getName();
           });
 
-  // When translating an omp.loop_nest, one stack frame was pushed to hold that
-  // loop's information. The code below ensures that this stack frame is removed
-  // when encountering the outermost loop wrapper associated to that loop. This
-  // approach allows all loop wrappers have access to that loop's information
-  // (to e.g. apply transformations to it) after their associated omp.loop_nest
-  // operation has been translated.
-  bool isOutermostLoopWrapper =
-      isa_and_present<omp::LoopWrapperInterface>(op) &&
-      !dyn_cast_if_present<omp::LoopWrapperInterface>(op->getParentOp());
-
-  // We need to check that a loop info is present as well, in case translation
-  // of the loop failed before it was created.
-  if (isOutermostLoopWrapper && findCurrentLoopInfo(moduleTranslation))
+  if (isOutermostLoopWrapper)
     moduleTranslation.stackPop();
 
   return result;
